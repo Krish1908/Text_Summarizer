@@ -8,7 +8,7 @@ I have created a chatbot which uses OLLAMA, Langchain, streamlit modules. When u
 	
 Tools and Methods used:
 
-I have downloaded ollama 3 in my local machine. Since the LLM model is stored locally, API KEYS are not required, although this may result in slightly slower response times based on the LLM model downloaded.
+I have downloaded ollama 3 in my local machine. Since the LLM model is stored locally, API KEYS are not required, although this may result in slightly slower response time based on the LLM model downloaded.
 
 There are few modules to be installed (dependencies):
 langchain, langchain-ollama, ollama, and streamlit.
