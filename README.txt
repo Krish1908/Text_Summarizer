@@ -27,6 +27,6 @@ Approximately, the summarization process takes about 3 to 4 minutes for longer t
 
 And finally, to execute this code, we must use terminal and write the following code.
 
-streamlit Text_Summarizer_2.py
+streamlit run Text_Summarizer_2.py
 
 Thanks!!!
