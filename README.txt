@@ -5,10 +5,10 @@ Automated Content Summarizer for News Articles
 
 I have created a chatbot which uses OLLAMA, Langchain, streamlit modules. When users paste text into the interface, the chatbot generates a summary of the article, enabling users to save time and grasp the content more easily.
 
-
+	
 Tools and Methods used:
 
-I have downloaded ollama 3 in my local machine. Since the LLM model is stored locally, API KEYS are not required, although this may result in slightly slower response times.
+I have downloaded ollama 3 in my local machine. Since the LLM model is stored locally, API KEYS are not required, although this may result in slightly slower response times based on the LLM model downloaded.
 
 There are few modules to be installed (dependencies):
 langchain, langchain-ollama, ollama, and streamlit.
