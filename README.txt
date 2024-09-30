@@ -29,4 +29,8 @@ And finally, to execute this code, we must use terminal and write the following 
 
 streamlit run Text_Summarizer_2.py
 
+
+As the LLM is stored locally, the machine doesn't require an internet connection to summarize the text.
+
+
 Thanks!!!
