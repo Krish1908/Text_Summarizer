@@ -1,5 +1,3 @@
-Week 2 Project :
-
 Hello everyone, the title is:
 Automated Content Summarizer for News Articles
 
