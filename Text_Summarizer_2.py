@@ -1,7 +1,7 @@
 # IMPORT THE NECESSARY MODULES
 import streamlit as st
-from langchain_ollama import OllamaLLM
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
 
 # PROMPT TEMPLATE
 template = """
@@ -12,9 +12,16 @@ You are a summarization AI. Please summarize the following text:
 Please wait... Your Summary is loading...
 """
 
+# GET API KEY FROM THE SECERETS.TOML FILE
+api_key = st.secrets["groq"]["api_key"]
+
 # INITIALIZE THE MODEL AND PROMPT
-model = OllamaLLM(model="llama3")
-prompt = PromptTemplate.from_template(template)
+model = ChatGroq(temperature=0,
+               groq_api_key=api_key,
+               model_name='llama-3.1-70b-versatile'
+               )
+prompt = ChatPromptTemplate.from_template(template)
+chain = prompt | model
 
 # FUNCTION TO REMOVE SPACE BETWEEN PARAGRAPHS
 def preprocess_text(text):
@@ -48,11 +55,12 @@ def summarize_text():
             with st.spinner('Generating summary...'):
                 try:
                     # SUMMARY FROM MODEL
-                    result = model(formatted_prompt)
-                    
+                    result = chain.invoke({"text" :formatted_prompt})
+                    answer = result.content
+
                     # DISPLAY THE SUMMARY
                     st.subheader("Summary:")
-                    st.write(result)
+                    st.write(answer)
                 
                 except Exception as e:
                     st.error(f"Error occurred while generating summary: {e}")
