@@ -7,37 +7,35 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Deploy to On-Prem VM
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: 22
-          script: |
-            echo "🚀 Starting Tender frontend deployment..."
+      - name: Deploy Text Summarizer
+        run: |
+          echo "🚀 Starting Tender frontend deployment..."
 
-            cd /var/www/Text_Summarizer
+          cd /var/www/Text_Summarizer
 
-            echo "📥 Pulling latest code..."
-            git pull origin main
-            echo "✅ Done Pulling latest code..."
+          echo "📥 Pulling latest code..."
+          git fetch --all
+          git reset --hard origin/main
+          git pull origin main
+          echo "✅ Done Pulling latest code..."
 
-            echo "🐍 Activating virtual environment..."
-            source venv/bin/activate
+          echo "🐍 Activating virtual environment..."
+          source venv/bin/activate
 
-            echo "📦 Installing backend dependencies..."
-            pip install -r requirements.txt
-            echo "✅ Done Installing backend dependencies..."
+          echo "📦 Installing backend dependencies..."
+          pip install -r requirements.txt
+          echo "✅ Done Installing backend dependencies..."
 
-            echo "🔄 Restarting services..."
-            sudo systemctl daemon-reload
-            sudo systemctl restart textsummarizer
-            sudo systemctl restart nginx
-            echo "✅ Done Restarting backend service..."
+          echo "🔄 Restarting services..."
+          sudo systemctl daemon-reload
+          sudo systemctl restart textsummarizer
+          sudo systemctl restart nginx
+          echo "✅ Done Restarting backend service..."
 
-            echo "✅ Text Summarizer deployment complete!"
+          echo "✅ Text Summarizer deployment complete!"
