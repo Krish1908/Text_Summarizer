@@ -196,3 +196,6 @@ if __name__ == "__main__":
     print(f"Documentation: http://localhost:{port}/docs")
     
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=debug)
+
+
+    

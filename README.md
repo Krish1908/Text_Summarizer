@@ -1,141 +1,191 @@
-# 📝 Automated Content Summarizer
+# 🤖 AI Text Summarizer
 
-A powerful and flexible text summarization tool built with LangChain, Groq API, and Streamlit that provides concise summaries of long articles and documents.
+A fast, modern web-based text summarization tool powered by **Groq API** and **LangChain**, served through a **FastAPI** backend with a clean, responsive frontend.
+
+---
 
 ## 🚀 Features
 
-- **Multiple Deployment Options:** Choose between local Ollama models or cloud-based Groq API
-- **Fast Processing:** Instant summarization with real-time results
-- **Clean Interface:** User-friendly Streamlit web application with responsive design
-- **Console Support:** Command-line versions for direct usage and automation
-- **Secure Configuration:** Environment variable support for API keys and sensitive data
-- **Whitespace Handling:** Properly processes and cleans text formatting
-- **Error Handling:** Robust error management with user-friendly messages
+- **Instant Summarization** — Powered by Groq's LLaMA 3.1 8B model for fast, accurate results
+- **4 Summary Formats** — Concise, Detailed, Bullet Points, or Key Points
+- **Live Word & Character Count** — Real-time stats as you type
+- **Clipboard Support** — Paste directly from clipboard with one click
+- **File Upload** — Load `.txt`, `.doc`, `.docx`, or `.pdf` files directly
+- **Copy & Download** — Export your summary to clipboard or as a `.txt` file
+- **Token Limit Guard** — Warns you if text exceeds the 3000-word API limit before sending
+- **Reduction Stats** — Shows word count and % reduction after every summary
+- **Responsive Design** — Works on desktop, tablet, and mobile
+- **Keyboard Shortcuts** — `Ctrl+Enter` to summarize, `Ctrl+K` to clear
 
-## 🛠️ Technologies Used
+---
 
-- **LangChain:** Framework for building LLM applications with powerful prompt management
-- **Groq API:** High-performance cloud-based LLM inference for fast results
-- **Ollama:** Local LLM deployment for offline and privacy-focused usage
-- **Streamlit:** Modern web framework for building interactive data applications
-- **Python:** Core programming language with extensive ecosystem support
+## 🛠️ Tech Stack
 
-## 📦 Installation
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI + Uvicorn |
+| AI / LLM | Groq API via LangChain |
+| Model | `llama-3.1-8b-instant` |
+| Frontend | Vanilla HTML, CSS, JavaScript |
+| Config | python-dotenv (`.env` file) |
 
-### Prerequisites
-- Python 3.8 or higher
-- Groq API key (for cloud models) - [Get yours here](https://console.groq.com/)
-- Ollama (for local models) - [Install from ollama.ai](https://ollama.ai/)
-
-### Quick Setup
-
-1. **Clone the repository:**
-```bash
-git clone <repository-url>
-cd Text_Summarizer
-```
-2. **Create virtual environment**
-```bash
-python -m venv venv
-```
-
-3. **Activate virtual environment**
-```bash
-# Windows
-venv/Scripts/activate
-
-# macOS/Linux
-source venv/bin/activate
-```
-
-4. **Install dependencies:**
-```bash
-pip install -r requirements.txt
-```
-
-5. **Configure environment variables:**
-```bash
-# Copy the environment template
-cp .env.example .env
-# Edit .env with your actual API key
-```
-
-## 🎯 Usage
-
-### Web Interface (Recommended)
-
-**Option 1: Local Ollama Model**
-```bash
-streamlit run Text_Summarizer_04.py
-```
-
-**Option 2: Groq Cloud API**
-```bash
-streamlit run Text_Summarizer_02.py
-```
-
-### Command Line Interface
-
-**Option 1: Local Ollama Model**
-```bash
-python Text_Summarizer_03.py
-```
-
-**Option 2: Groq Cloud API**
-```bash
-python Text_Summarizer_01.py
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-Create a `.env` file with your configuration:
-```env
-# Required for Groq API usage
-GROQ_API_KEY=your-actual-groq-api-key-here
-
-# Optional: Customize model names
-GROQ_MODEL=llama-3.1-70b-versatile
-OLLAMA_MODEL=llama3
-
-# Optional: Temperature settings
-GROQ_TEMPERATURE=0
-```
-
-### Streamlit Secrets (Alternative)
-Create `.streamlit/secrets.toml` for Streamlit Cloud deployment:
-```toml
-[groq]
-api_key = "your-actual-groq-api-key-here"
-```
+---
 
 ## 📁 Project Structure
 
 ```
 Text_Summarizer/
-├── Text_Summarizer_01.py      # Console app with Groq API
-├── Text_Summarizer_02.py      # Web app with Groq API  
-├── Text_Summarizer_03.py      # Console app with local Ollama
-├── Text_Summarizer_04.py      # Web app with local Ollama
-├── requirements.txt           # Exact library versions
-├── .env                       # Environment variables (not committed)
-├── .gitignore                 # Git ignore rules
-├── README.md                  # This file
-└── .streamlit/
-    └── secrets.toml          # Streamlit secrets template
+├── main.py               # FastAPI backend — API routes, LLM calls
+├── index.html            # Frontend — main UI
+├── styles.css            # Frontend — styling
+├── script.js             # Frontend — button logic, API calls, animations
+├── image-1.jpg           # Favicon / logo image
+├── .env                  # API key
+├── .gitignore            # Git ignore rules
+├── requirements.txt      # Python dependencies
+└── README.md             # This file
 ```
 
-## 🔧 Model Options
+---
 
-### Groq Cloud Models (Fast, requires API key)
-- `llama-3.3-70b-versatile` - Most powerful, detailed summaries
-- `llama-3.1-8b-instant` - Fast, good for quick summaries
+## 📦 Installation
 
-### Local Ollama Models (Offline, privacy-focused)
-- `llama3` - Good general-purpose model
-- `llama3:70b` - More powerful local option
-- `mistral` - Alternative model option
+### Prerequisites
+- Python 3.12 or higher
+- Groq API key — [Get yours free at console.groq.com](https://console.groq.com/)
 
-## 🤝 Contributing
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd Text_Summarizer
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### 2. Create and activate a virtual environment
+```bash
+# Create
+python -m venv venv
+
+# Activate — Windows
+venv\Scripts\activate
+
+# Activate — macOS/Linux
+source venv/bin/activate
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Set up your API key
+
+Create a `.env` file in the root directory:
+```env
+GROQ_API_KEY=your-actual-groq-api-key-here
+```
+
+---
+
+## ▶️ Running the App
+
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+Then open your browser and go to:
+```
+http://localhost:8000
+```
+
+The API documentation (Swagger UI) is available at:
+```
+http://localhost:8000/docs
+```
+
+---
+
+## 🎯 How to Use
+
+1. Open `http://localhost:8000` in your browser
+2. Paste your text into the input box — or use the **Paste**, **Upload**, or **Clear** buttons
+3. Select a summary format from the dropdown: `Concise`, `Detailed`, `Bullet Points`, or `Key Points`
+4. Click **Generate Summary**
+5. View the summary, then **Copy** or **Download** it
+
+> ⚠️ Keep input under **3000 words** to stay within the free Groq API token limits.
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/` | Serves the main HTML page |
+| `POST` | `/api/summarize` | Summarizes submitted text |
+| `GET` | `/api/models` | Returns available LLM models |
+| `GET` | `/api/health` | Health check |
+
+---
+
+## ⚙️ Configuration
+
+All configuration is handled via the `.env` file:
+
+```env
+# Required
+GROQ_API_KEY=your-actual-groq-api-key-here
+
+# Optional
+PORT=8000
+DEBUG=False
+```
+
+---
+
+## 🧠 Available Models
+
+| Model | Speed | Quality | Use Case |
+|---|---|---|---|
+| `llama-3.1-8b-instant` | ⚡ Fast | Good | Default — everyday summarization |
+| `llama-3.3-70b-versatile` | 🐢 Slower | Best | Long, complex documents |
+
+> The default model is `llama-3.1-8b-instant`. To use a different model, update the `model` field in your API request.
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl + Enter` | Generate Summary |
+| `Ctrl + K` | Clear all text |
+| `Ctrl + V` | Paste from clipboard |
+
+---
+
+
+## 🐛 Troubleshooting
+
+| Problem | Cause | Fix |
+|---|---|---|
+| `500 Internal Server Error` on load | Wrong file path in `main.py` | Ensure `index.html` is in the same directory as `main.py` |
+| `GROQ_API_KEY not set` warning | `.env` file missing or wrong path | Create `.env` in the root directory next to `main.py` |
+| `413 / rate_limit_exceeded` error | Text too long for free tier | Reduce input to under 3000 words |
+| Buttons not working | JS crash on load | Check browser console for errors |
+| Static files not loading (CSS/JS) | Wrong static directory in `main.py` | Ensure `StaticFiles(directory=".")` in `main.py` |
+
+---
+
+## 📋 Requirements
+
+```
+fastapi==0.115.0
+uvicorn[standard]==0.38.0
+python-dotenv==1.1.1
+pydantic==2.11.5
+langchain-core==1.0.0
+langchain-groq==1.0.0
+requests==2.32.5
+```
+
+---

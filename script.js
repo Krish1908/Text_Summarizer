@@ -338,3 +338,5 @@ class TextSummarizer {
 document.addEventListener('DOMContentLoaded', () => {
     new TextSummarizer();
 });
+
+
