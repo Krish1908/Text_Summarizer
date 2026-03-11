@@ -1,8 +1,21 @@
 
 # python 3.12
 
+# Streamlit dependencies
 streamlit==1.50.0
+
+# FastAPI Web Application Dependencies
+fastapi==0.115.0
+uvicorn[standard]==0.38.0
+python-dotenv==1.1.1
+pydantic==2.11.5
+jinja2==3.1.5
+
+# LangChain Integration (same as v1 Streamlit version)
 langchain-ollama==1.0.0
 langchain-core==1.0.0
 langchain-groq==1.0.0
+
+# Additional dependencies for LangChain
+requests==2.32.5
 python-dotenv==1.1.1
