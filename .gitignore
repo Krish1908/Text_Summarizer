@@ -6,3 +6,8 @@
 
 venv/
 __pycache__/
+
+Text_Summarizer_01.py
+Text_Summarizer_02.py
+Text_Summarizer_03.py
+Text_Summarizer_04.py
