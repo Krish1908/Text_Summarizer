@@ -4,10 +4,9 @@ FastAPI backend for Text Summarizer.
 Simple, fast, and production-ready.
 """
 
-from fastapi import FastAPI, HTTPException, Form, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 import os
@@ -25,11 +24,8 @@ load_dotenv(env_path, override=True)
 
 app = FastAPI(title="Text Summarizer API", version="1.0.0")
 
-# Mount static files
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
-
-# Templates
-templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
+# Mount static files for the new UI
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # Configuration
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -108,9 +104,11 @@ def call_groq_api(prompt: str, model: str, temperature: float, api_key: str) -> 
         raise Exception(f"LangChain API call failed: {str(e)}")
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+async def home():
     """Serve the main HTML page"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    html_path = os.path.join(os.path.dirname(__file__), "index.html")
+    with open(html_path, 'r', encoding='utf-8') as f:
+        return HTMLResponse(content=f.read(), status_code=200)
 
 @app.post("/api/summarize", response_model=SummarizeResponse)
 async def summarize_text(request: SummarizeRequest):
@@ -149,8 +147,11 @@ async def summarize_text(request: SummarizeRequest):
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
+            print(f"FULL ERROR: {e}")
+            error_msg = str(e)
+            if 'rate_limit_exceeded' in error_msg or '413' in error_msg:
+                raise HTTPException(status_code=429, detail="Your text is too large. Please shorten it to under 4000 words and try again.")
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {error_msg}")
 @app.get("/api/models")
 async def get_models():
     """Get available models"""
@@ -161,9 +162,9 @@ async def get_models():
             'description': 'Fastest response time'
         },
         {
-            'value': 'mixtral-8x7b-32768',
-            'label': 'Mixtral 8x7B (Balanced)',
-            'description': 'Good balance of speed and quality'
+            'value': 'llama-3.3-70b-versatile',
+            'label': 'Llama 3.3 70B (Best Quality)',
+            'description': 'Best quality, slightly slower'
         }
     ]
     

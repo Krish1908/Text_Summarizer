@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Text Summarizer</title>
+
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" type="image/jpeg" href="/static/image-1.jpg">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- Header -->
+<header class="header">
+<div class="header-content">
+
+<div class="logo">
+<i class="fas fa-robot"></i>
+<h1>AI Text Summarizer</h1>
+</div>
+
+<nav class="nav-menu">
+<a href="#home" class="nav-link active">Home</a>
+<a href="#features" class="nav-link">Features</a>
+<a href="#about" class="nav-link">About</a>
+</nav>
+
+</div>
+</header>
+
+
+<!-- Main Content -->
+<main class="main-content">
+
+<!-- HERO -->
+<section id="home" class="hero">
+
+<div class="hero-content">
+
+<div class="hero-text">
+
+<h1 class="hero-title">
+Transform Long Text into
+<span class="highlight">Concise Summaries</span>
+</h1>
+
+<p class="hero-subtitle">
+Powered by AI. Instantly summarize articles, documents, and long text.
+</p>
+
+<div class="hero-actions">
+
+<button class="btn btn-primary btn-large"
+onclick="document.getElementById('summarizer').scrollIntoView({behavior: 'smooth'})">
+
+<i class="fas fa-sparkles"></i>
+Start Summarizing
+
+</button>
+
+</div>
+</div>
+
+
+<div class="hero-stats">
+
+<div class="stat-card">
+<div class="stat-number">95%</div>
+<div class="stat-label">Accuracy</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">2s</div>
+<div class="stat-label">Response</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">80%</div>
+<div class="stat-label">Reduction</div>
+</div>
+
+</div>
+
+</div>
+</section>
+
+
+
+<!-- SUMMARIZER -->
+<section id="summarizer" class="summarizer-section">
+
+<div class="container">
+
+<div class="section-header">
+
+<h2>
+<i class="fas fa-edit"></i>
+Your AI Assistant
+</h2>
+
+<p>Paste your text and generate an AI summary</p>
+
+</div>
+
+
+
+<!-- INPUT -->
+<div class="input-section">
+
+<div class="input-header">
+
+<h3>Input Text</h3>
+
+<div class="input-options">
+
+<select id="summaryType" class="form-select">
+<option value="concise">Concise</option>
+<option value="detailed">Detailed</option>
+<option value="bullet">Bullet Points</option>
+<option value="keypoints">Key Points</option>
+</select>
+
+<div class="text-stats">
+<span id="charCount">0</span> characters
+<span id="wordCount">0</span> words
+</div>
+
+</div>
+</div>
+
+
+
+<div class="input-controls">
+
+<div class="control-group">
+
+<button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
+<i class="fas fa-paste"></i>
+</button>
+
+<button class="btn-icon" id="fileBtn" title="Upload file">
+<i class="fas fa-upload"></i>
+</button>
+
+<button class="btn-icon" id="clearBtn" title="Clear text">
+<i class="fas fa-eraser"></i>
+</button>
+
+</div>
+</div>
+
+
+
+<textarea
+id="inputText"
+placeholder="Paste your long article, document, or text here..."
+rows="12">
+</textarea>
+
+</div>
+
+
+
+<!-- GENERATE -->
+<div class="action-section">
+
+<div class="action-controls">
+
+<button class="btn btn-primary btn-large" id="summarizeBtn">
+
+<i class="fas fa-sparkles"></i>
+<span>Generate Summary</span>
+
+</button>
+
+<div class="processing-indicator" id="processingIndicator" style="display:none;">
+<div class="spinner"></div>
+<span>Processing...</span>
+</div>
+
+</div>
+</div>
+
+
+
+<!-- OUTPUT -->
+<div class="output-section">
+
+<div class="output-header">
+
+<h3>Summary</h3>
+
+<div class="output-actions">
+
+<button class="btn-icon" id="copyBtn">
+<i class="fas fa-copy"></i>
+</button>
+
+<button class="btn-icon" id="downloadBtn">
+<i class="fas fa-download"></i>
+</button>
+
+</div>
+
+</div>
+
+
+
+<div class="output-container">
+
+<div id="summaryOutput" class="summary-output"></div>
+
+</div>
+
+
+
+<div class="summary-stats" id="summaryStats" style="display:none;">
+
+<div class="stat-item">
+<i class="fas fa-percentage"></i>
+<span id="reductionRatio">0%</span> reduction
+</div>
+
+<div class="stat-item">
+<i class="fas fa-file-alt"></i>
+<span id="summaryWords">0</span> words
+</div>
+
+</div>
+
+</div>
+
+
+
+<div id="errorMessage" class="error-message" style="display:none;"></div>
+
+</div>
+</section>
+
+
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-star"></i> Features</h2>
+                    <p>Everything you need for perfect text summarization</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4>Lightning Fast</h4>
+                        <p>Get instant summaries with our optimized AI models</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h4>Multilingual</h4>
+                        <p>Support for multiple languages with auto-detection</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <h4>Customizable</h4>
+                        <p>Adjust creativity, detail level, and output format</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h4>Multiple Formats</h4>
+                        <p>Concise, detailed, bullet points, or key points</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4>Responsive</h4>
+                        <p>Works perfectly on desktop, tablet, and mobile</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Secure</h4>
+                        <p>Your text stays private and secure</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-info-circle"></i> About</h2>
+                    <p>Learn more about our AI text summarization technology</p>
+                </div>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Revolutionizing Text Summarization</h3>
+                        <p>Our AI Text Summarizer uses cutting-edge language models to provide accurate and concise summaries of any text. Whether you're dealing with long articles, research papers, or business documents, our tool helps you extract the most important information quickly and efficiently.</p>
+                    </div>
+                    <div class="about-image">
+                        <div class="ai-visualization">
+                            <div class="neural-node"></div>
+                            <div class="neural-node"></div>
+                            <div class="neural-node"></div>
+                            <div class="neural-node"></div>
+                            <div class="neural-node"></div>
+                            <div class="neural-node"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-robot"></i>
+                    <h3>AI Text Summarizer</h3>
+                </div>
+                <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#about">About</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 AI Text Summarizer</p>
+            </div>
+        </div>
+    </footer>
+
+    <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" style="display:none;">
+
+    <script src="/static/script.js"></script>
+
+</body>
+</html>

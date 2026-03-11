@@ -1,72 +1,70 @@
-// Minimal JavaScript for Text Summarizer
-// Just enough for dynamic functionality without complexity
+// Text Summarizer JavaScript
+// Modern, clean implementation inspired by Tender_frontend design
 
 class TextSummarizer {
     constructor() {
-        this.config = this.loadConfig();
         this.init();
     }
 
     init() {
         this.setupElements();
         this.setupEventListeners();
-        this.populateModels();
         this.updateUI();
+        this.setupScrollAnimation();
     }
 
     setupElements() {
         this.elements = {
-            inputText: document.getElementById('inputText'),
-            summarizeBtn: document.getElementById('summarizeBtn'),
-            clearBtn: document.getElementById('clearBtn'),
-            settingsBtn: document.getElementById('settingsBtn'),
-            closeSettings: document.getElementById('closeSettings'),
-            configPanel: document.getElementById('configPanel'),
-            saveConfig: document.getElementById('saveConfig'),
-            modelSelect: document.getElementById('modelSelect'),
-            temperature: document.getElementById('temperature'),
-            tempValue: document.getElementById('tempValue'),
+            // Navigation
+            navLinks: document.querySelectorAll('.nav-link'),
+            header: document.querySelector('.header'),
+            
+            // Configuration
             summaryType: document.getElementById('summaryType'),
-            languageSelect: document.getElementById('languageSelect'),
-            summaryOutput: document.getElementById('summaryOutput'),
-            processingIndicator: document.getElementById('processingIndicator'),
-            summaryStats: document.getElementById('summaryStats'),
-            processingTime: document.getElementById('processingTime'),
-            reductionRatio: document.getElementById('reductionRatio'),
-            summaryWords: document.getElementById('summaryWords'),
+            
+            // Input
+            inputText: document.getElementById('inputText'),
             charCount: document.getElementById('charCount'),
             wordCount: document.getElementById('wordCount'),
-            copyBtn: document.getElementById('copyBtn'),
-            downloadBtn: document.getElementById('downloadBtn'),
             pasteBtn: document.getElementById('pasteBtn'),
             fileBtn: document.getElementById('fileBtn'),
-            sampleBtn: document.getElementById('sampleBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            fileInput: document.getElementById('fileInput'),
+            
+            // Action
+            summarizeBtn: document.getElementById('summarizeBtn'),
+            processingIndicator: document.getElementById('processingIndicator'),
+            
+            // Output
+            summaryOutput: document.getElementById('summaryOutput'),
+            summaryStats: document.getElementById('summaryStats'),
+            reductionRatio: document.getElementById('reductionRatio'),
+            summaryWords: document.getElementById('summaryWords'),
+            copyBtn: document.getElementById('copyBtn'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            
+            // Messages
             errorMessage: document.getElementById('errorMessage'),
-            fileInput: document.getElementById('fileInput')
         };
     }
 
     setupEventListeners() {
+        // Navigation
+        window.addEventListener('scroll', () => this.handleScroll());
+        this.elements.navLinks.forEach(link => {
+            link.addEventListener('click', (e) => this.handleNavClick(e));
+        });
+
         // Text input for stats
         this.elements.inputText.addEventListener('input', () => this.updateStats());
         
         // Buttons
         this.elements.summarizeBtn.addEventListener('click', () => this.summarizeText());
         this.elements.clearBtn.addEventListener('click', () => this.clearText());
-        this.elements.settingsBtn.addEventListener('click', () => this.toggleSettings());
-        this.elements.closeSettings.addEventListener('click', () => this.toggleSettings());
-        this.elements.saveConfig.addEventListener('click', () => this.saveConfig());
-        
-        // Controls
-        this.elements.temperature.addEventListener('input', (e) => {
-            this.elements.tempValue.textContent = e.target.value;
-        });
-        
-        this.elements.copyBtn.addEventListener('click', () => this.copySummary());
-        this.elements.downloadBtn.addEventListener('click', () => this.downloadSummary());
         this.elements.pasteBtn.addEventListener('click', () => this.pasteFromClipboard());
         this.elements.fileBtn.addEventListener('click', () => this.uploadFile());
-        this.elements.sampleBtn.addEventListener('click', () => this.loadSampleText());
+        this.elements.copyBtn.addEventListener('click', () => this.copySummary());
+        this.elements.downloadBtn.addEventListener('click', () => this.downloadSummary());
         
         // File input
         this.elements.fileInput.addEventListener('change', (e) => {
@@ -81,27 +79,10 @@ class TextSummarizer {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 this.clearText();
             }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                this.pasteFromClipboard();
+            }
         });
-    }
-
-    async populateModels() {
-        try {
-            const response = await fetch('/api/models');
-            const data = await response.json();
-            
-            this.elements.modelSelect.innerHTML = '';
-            data.models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model.value;
-                option.textContent = model.label;
-                this.elements.modelSelect.appendChild(option);
-            });
-            
-            // Set default model
-            this.elements.modelSelect.value = this.config.model || 'llama-3.1-8b-instant';
-        } catch (error) {
-            console.error('Failed to load models:', error);
-        }
     }
 
     updateStats() {
@@ -120,21 +101,26 @@ class TextSummarizer {
             return;
         }
 
+        const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
+        if (wordCount > 3000) {
+            this.showError(`Text too long (${wordCount} words). Please reduce to under 3000 words to stay within API limits.`);
+            return;
+        }
+
         this.showProcessing(true);
         this.hideError();
 
+        let response;
         try {
-            const response = await fetch('/api/summarize', {
+            // Call FastAPI backend
+            response = await fetch('/api/summarize', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     text: text,
-                    summary_type: this.elements.summaryType.value,
-                    language: this.elements.languageSelect.value,
-                    model: this.elements.modelSelect.value,
-                    temperature: parseFloat(this.elements.temperature.value)
+                    summary_type: this.elements.summaryType.value
                 })
             });
 
@@ -153,20 +139,37 @@ class TextSummarizer {
 
         } catch (error) {
             console.error('Error:', error);
-            this.showError('Error generating summary. Please try again.');
+            if (response && response.status === 429) {
+                const data = await response.json().catch(() => ({}));
+                this.showError(data.detail || 'Text too large. Please shorten your input and try again.');
+            } else {
+                this.showError('Error generating summary. Please check your connection and try again.');
+            }
         } finally {
             this.showProcessing(false);
         }
     }
 
-    displaySummary(summary, stats) {
-        this.elements.summaryOutput.textContent = summary;
-        this.elements.summaryStats.style.display = 'flex';
+    generateMockSummary(text) {
+        // Simple mock summary generation
+        const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        const summaryLength = Math.max(2, Math.floor(sentences.length / 3));
         
-        this.elements.processingTime.textContent = '0s'; // Simplified
-        this.elements.reductionRatio.textContent = stats.reduction_percentage;
-        this.elements.summaryWords.textContent = stats.summary_words;
+        let summary = '';
+        for (let i = 0; i < Math.min(summaryLength, sentences.length); i++) {
+            summary += sentences[i].trim() + '. ';
+        }
+        
+        return summary.trim() + ' This is a simulated summary for demonstration purposes.';
     }
+
+    displaySummary(summary, stats) {
+    this.elements.summaryOutput.textContent = summary;
+    this.elements.summaryStats.style.display = 'flex';
+    
+    this.elements.reductionRatio.textContent = stats.reduction_percentage + '%';
+    this.elements.summaryWords.textContent = stats.summary_words;
+}   
 
     clearText() {
         this.elements.inputText.value = '';
@@ -176,44 +179,17 @@ class TextSummarizer {
         this.hideError();
     }
 
-    toggleSettings() {
-        const isVisible = this.elements.configPanel.style.display === 'block';
-        this.elements.configPanel.style.display = isVisible ? 'none' : 'block';
-        
-        if (!isVisible) {
-            this.loadConfigToForm();
+    handleScroll() {
+        if (window.scrollY > 50) {
+            this.elements.header.classList.add('scrolled');
+        } else {
+            this.elements.header.classList.remove('scrolled');
         }
     }
 
-    loadConfigToForm() {
-        this.elements.modelSelect.value = this.config.model || 'llama-3.1-8b-instant';
-        this.elements.temperature.value = this.config.temperature || 0;
-        this.elements.tempValue.textContent = this.config.temperature || 0;
-        this.elements.summaryType.value = this.config.summaryType || 'concise';
-        this.elements.languageSelect.value = this.config.language || 'auto';
-    }
-
-    saveConfig() {
-        this.config = {
-            model: this.elements.modelSelect.value,
-            temperature: parseFloat(this.elements.temperature.value),
-            summaryType: this.elements.summaryType.value,
-            language: this.elements.languageSelect.value
-        };
-        
-        localStorage.setItem('textSummarizerConfig', JSON.stringify(this.config));
-        this.hideError();
-        this.showSuccess('Configuration saved!');
-    }
-
-    loadConfig() {
-        const saved = localStorage.getItem('textSummarizerConfig');
-        return saved ? JSON.parse(saved) : {
-            model: 'llama-3.1-8b-instant',
-            temperature: 0,
-            summaryType: 'concise',
-            language: 'auto'
-        };
+    handleNavClick(e) {
+        this.elements.navLinks.forEach(link => link.classList.remove('active'));
+        e.target.classList.add('active');
     }
 
     showProcessing(show) {
@@ -309,18 +285,52 @@ class TextSummarizer {
         reader.readAsText(file);
     }
 
-    loadSampleText() {
-        const sampleText = `Artificial intelligence (AI) is a rapidly evolving field of technology that involves the development of computer systems capable of performing tasks that typically require human intelligence. These tasks include learning, reasoning, problem-solving, perception, and language understanding. AI has the potential to revolutionize various industries, from healthcare and finance to transportation and entertainment.
 
-One of the most significant breakthroughs in AI has been the development of machine learning algorithms, particularly deep learning. These algorithms enable computers to learn from vast amounts of data without being explicitly programmed. This has led to remarkable achievements in image recognition, natural language processing, and game playing, among other areas.
+    setupScrollAnimation() {
+        // Add smooth scroll behavior for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
 
-However, the rapid advancement of AI also raises important ethical and societal questions. Issues such as job displacement, privacy concerns, algorithmic bias, and the potential for autonomous weapons have sparked intense debate among researchers, policymakers, and the general public. As AI continues to develop, it will be crucial to establish appropriate regulations and guidelines to ensure that the technology is used responsibly and for the benefit of humanity.
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-Despite these challenges, the potential benefits of AI are immense. In healthcare, AI could help doctors diagnose diseases more accurately and develop personalized treatment plans. In education, AI-powered tutors could provide customized learning experiences for students. In environmental science, AI could help us better understand and address climate change. The possibilities are endless, and the future of AI is both exciting and uncertain.`;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
 
-        this.elements.inputText.value = sampleText;
+        // Observe sections for fade-in effect
+        document.querySelectorAll('.features-grid .feature-card, .about-content, .hero-stats .stat-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    }
+
+    updateUI() {
+        // Initialize UI state on load
         this.updateStats();
-        this.showSuccess('Sample text loaded!');
+        this.elements.summaryStats.style.display = 'none';
+        this.elements.processingIndicator.style.display = 'none';
+        this.elements.errorMessage.style.display = 'none';
     }
 }
 
