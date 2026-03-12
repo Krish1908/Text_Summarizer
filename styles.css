@@ -231,13 +231,18 @@ a:hover {
 }
 
 .hero-text {
-    max-width: 600px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .hero-title {
     font-size: 4rem;
     margin-bottom: 1rem;
     line-height: 1.1;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    width: 100%;
 }
 
 .hero-title .highlight {
@@ -257,12 +262,16 @@ a:hover {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .hero-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .stat-card {
@@ -272,6 +281,8 @@ a:hover {
     border: 1px solid var(--border-color);
     text-align: center;
     transition: all var(--transition-fast);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .stat-card:hover {
@@ -753,6 +764,26 @@ textarea::placeholder {
     .hero-actions {
         justify-content: center;
     }
+
+    /* Fix 1: button full width on mobile */
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Fix 3: stat cards fit in row */
+    .hero-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .stat-card {
+        padding: 1rem 0.5rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
     
     .features-grid {
         grid-template-columns: 1fr;
@@ -761,6 +792,45 @@ textarea::placeholder {
     .summary-stats {
         flex-direction: column;
         gap: 1rem;
+    }
+
+    /* Fix 4: word count on its own line */
+    .input-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .input-options {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    .form-select {
+        width: 100%;
+    }
+
+    .text-stats {
+        width: 100%;
+    }
+
+    textarea {
+        min-height: 180px;
+    }
+
+    /* Fix 5: about section single column, hide overflowing nodes */
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+
+    .about-image {
+        display: none;
+    }
+
+    .btn-large {
+        width: 100%;
+        justify-content: center;
     }
 }
 
@@ -772,18 +842,45 @@ textarea::placeholder {
     .hero-title {
         font-size: 2rem;
     }
+
+    /* Fix 3: stat cards stay in a row, just compact */
+    .hero-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.35rem;
+    }
+
+    .stat-card {
+        padding: 0.75rem 0.25rem;
+    }
+
+    .stat-number {
+        font-size: 1.1rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
     
     .hero-actions {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
     }
     
     .btn-large {
         width: 100%;
+        justify-content: center;
     }
     
     .control-group {
         justify-content: center;
+    }
+
+    .action-controls {
+        flex-direction: column;
+    }
+
+    .header-content {
+        padding: 0.6rem 0.75rem;
     }
 }
 
@@ -847,10 +944,14 @@ textarea::placeholder {
     grid-template-columns: 2fr 1fr;
     gap: 4rem;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .about-text h3 {
     margin-bottom: 1.5rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .about-stats {
