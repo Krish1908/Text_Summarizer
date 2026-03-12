@@ -149,6 +149,7 @@ a:hover {
     margin: 0 auto;
     flex-wrap: nowrap;
     gap: 0.5rem;
+    position: relative;
 }
 
 .logo {
@@ -247,6 +248,14 @@ a:hover {
 @media (max-width: 768px) {
     .hamburger {
         display: flex;
+    }
+
+    .logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 60%;
+        justify-content: center;
     }
 
     .nav-menu {
