@@ -17,6 +17,8 @@ class TextSummarizer {
         this.elements = {
             // Navigation
             navLinks: document.querySelectorAll('.nav-link'),
+            navMenu: document.getElementById('navMenu'),
+            hamburgerBtn: document.getElementById('hamburgerBtn'),
             header: document.querySelector('.header'),
             
             // Configuration
@@ -52,7 +54,26 @@ class TextSummarizer {
         // Navigation
         window.addEventListener('scroll', () => this.handleScroll());
         this.elements.navLinks.forEach(link => {
-            link.addEventListener('click', (e) => this.handleNavClick(e));
+            link.addEventListener('click', (e) => {
+                this.handleNavClick(e);
+                // Close menu on link click
+                this.elements.navMenu.classList.remove('open');
+                this.elements.hamburgerBtn.classList.remove('open');
+            });
+        });
+
+        // Hamburger toggle
+        this.elements.hamburgerBtn.addEventListener('click', () => {
+            this.elements.navMenu.classList.toggle('open');
+            this.elements.hamburgerBtn.classList.toggle('open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header')) {
+                this.elements.navMenu.classList.remove('open');
+                this.elements.hamburgerBtn.classList.remove('open');
+            }
         });
 
         // Text input for stats
@@ -338,5 +359,3 @@ class TextSummarizer {
 document.addEventListener('DOMContentLoaded', () => {
     new TextSummarizer();
 });
-
-

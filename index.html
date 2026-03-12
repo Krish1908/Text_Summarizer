@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Text Summarizer</title>
 
-<link rel="stylesheet" href="/static/styles.css?v=10">
+<link rel="stylesheet" href="/static/styles.css">
 <link rel="icon" type="image/jpeg" href="/static/image-1.jpg">
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -23,11 +23,17 @@
 <h1>AI Text Summarizer</h1>
 </div>
 
-<nav class="nav-menu">
+<nav class="nav-menu" id="navMenu">
 <a href="#home" class="nav-link active">Home</a>
 <a href="#features" class="nav-link">Features</a>
 <a href="#about" class="nav-link">About</a>
 </nav>
+
+<button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+<span></span>
+<span></span>
+<span></span>
+</button>
 
 </div>
 </header>
@@ -346,7 +352,7 @@ rows="12">
 
     <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" style="display:none;">
 
-    <script src="/static/script.js?v=10"></script>
+    <script src="/static/script.js"></script>
 
 </body>
 </html>
