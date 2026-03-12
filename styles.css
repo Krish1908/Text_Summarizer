@@ -718,6 +718,12 @@ textarea::placeholder {
     gap: 2rem;
 }
 
+@media (max-width: 600px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .feature-card {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
@@ -861,10 +867,6 @@ textarea::placeholder {
         font-size: 1.5rem;
     }
     
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
     .footer-content {
         grid-template-columns: 1fr;
         text-align: center;
@@ -908,10 +910,6 @@ textarea::placeholder {
 
     .stat-label {
         font-size: 0.75rem;
-    }
-    
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
     }
     
     .summary-stats {
