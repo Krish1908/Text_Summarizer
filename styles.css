@@ -192,11 +192,11 @@ a:hover {
 .nav-link {
     color: var(--text-secondary);
     font-weight: 500;
-    padding: 0.4rem 0.6rem;
+    padding: 0.3rem 0.45rem;
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
     position: relative;
-    font-size: 0.9rem;
+    font-size: 0.78rem;
     white-space: nowrap;
 }
 
