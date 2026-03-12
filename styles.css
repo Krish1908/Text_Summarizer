@@ -57,6 +57,8 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 body {
@@ -69,8 +71,10 @@ body {
 
 .container {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
 }
 
 /* Typography */
@@ -199,6 +203,8 @@ a:hover {
     padding: 120px 0 60px 0;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .hero::before {
@@ -218,8 +224,10 @@ a:hover {
     gap: 4rem;
     align-items: center;
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
 }
 
 .hero-text {
@@ -402,9 +410,8 @@ a:hover {
 
 .input-header {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
 }
 
@@ -414,22 +421,18 @@ a:hover {
 
 .input-options {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 1rem;
     align-items: center;
-    width: 100%;
 }
 
 .form-select {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     color: var(--text-color);
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem;
     border-radius: var(--radius-md);
-    font-size: 0.95rem;
+    font-size: 1rem;
     transition: all var(--transition-fast);
-    flex: 1;
-    min-width: 120px;
 }
 
 .form-select:focus {
@@ -440,10 +443,9 @@ a:hover {
 
 .text-stats {
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
     font-size: 0.875rem;
     color: var(--text-secondary);
-    flex-shrink: 0;
 }
 
 .input-controls {
