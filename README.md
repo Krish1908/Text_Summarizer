@@ -15,6 +15,7 @@ A fast, modern web-based text summarization tool powered by **Groq API** and **L
 - **Token Limit Guard** — Warns you if text exceeds the 3000-word API limit before sending
 - **Reduction Stats** — Shows word count and % reduction after every summary
 - **Responsive Design** — Works on desktop, tablet, and mobile
+- **Hamburger Menu** — Mobile-friendly navigation with animated hamburger toggle
 - **Keyboard Shortcuts** — `Ctrl+Enter` to summarize, `Ctrl+K` to clear
 
 ---
@@ -124,7 +125,6 @@ http://localhost:8000/docs
 | `POST` | `/api/summarize` | Summarizes submitted text |
 | `GET` | `/api/models` | Returns available LLM models |
 | `GET` | `/api/health` | Health check |
-
 ---
 
 ## ⚙️ Configuration
@@ -149,7 +149,7 @@ DEBUG=False
 | `llama-3.1-8b-instant` | ⚡ Fast | Good | Default — everyday summarization |
 | `llama-3.3-70b-versatile` | 🐢 Slower | Best | Long, complex documents |
 
-> The default model is `llama-3.1-8b-instant`. To use a different model, update the `model` field in your API request.
+> The default model is `llama-3.1-8b-instant`.
 
 ---
 
@@ -163,7 +163,6 @@ DEBUG=False
 
 ---
 
-
 ## 🐛 Troubleshooting
 
 | Problem | Cause | Fix |
@@ -173,12 +172,15 @@ DEBUG=False
 | `413 / rate_limit_exceeded` error | Text too long for free tier | Reduce input to under 3000 words |
 | Buttons not working | JS crash on load | Check browser console for errors |
 | Static files not loading (CSS/JS) | Wrong static directory in `main.py` | Ensure `StaticFiles(directory=".")` in `main.py` |
+| Hamburger menu not opening | Old cached `script.js` | Hard refresh with `Ctrl+Shift+R` |
 
 ---
 
 ## 📋 Requirements
 
 ```
+# python 3.12
+
 fastapi==0.115.0
 uvicorn[standard]==0.38.0
 python-dotenv==1.1.1
