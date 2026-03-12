@@ -63,7 +63,8 @@ class TextSummarizer {
         });
 
         // Hamburger toggle
-        this.elements.hamburgerBtn.addEventListener('click', () => {
+        this.elements.hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             this.elements.navMenu.classList.toggle('open');
             this.elements.hamburgerBtn.classList.toggle('open');
         });
