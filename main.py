@@ -27,6 +27,21 @@ app = FastAPI(title="Text Summarizer API", version="1.0.0")
 # Mount static files for the new UI
 app.mount("/static", StaticFiles(directory="."), name="static")
 
+# Disable caching for static files during development
+from fastapi import Response
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/static"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+app.add_middleware(NoCacheMiddleware)
+
 # Configuration
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -196,6 +211,3 @@ if __name__ == "__main__":
     print(f"Documentation: http://localhost:{port}/docs")
     
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=debug)
-
-
-    
