@@ -6,7 +6,8 @@ A fast, modern web-based text summarization tool powered by **Groq API** and **L
 
 ## 🚀 Features
 
-- **Instant Summarization** — Powered by Groq's LLaMA 3.1 8B model for fast, accurate results
+- **Dual AI Backend** — Choose between Groq API (cloud) or Local Ollama (offline)
+- **Instant Summarization** — Powered by Groq's LLaMA 3.1 8B model or Local Mistral 7B
 - **4 Summary Formats** — Concise, Detailed, Bullet Points, or Key Points
 - **Live Word & Character Count** — Real-time stats as you type
 - **Clipboard Support** — Paste directly from clipboard with one click
@@ -25,8 +26,8 @@ A fast, modern web-based text summarization tool powered by **Groq API** and **L
 | Layer | Technology |
 |---|---|
 | Backend | FastAPI + Uvicorn |
-| AI / LLM | Groq API via LangChain |
-| Model | `llama-3.1-8b-instant` |
+| AI / LLM | Groq API via LangChain + Local Ollama |
+| Models | `llama-3.1-8b-instant` (Groq) / `mistral:7b` (Ollama) |
 | Frontend | Vanilla HTML, CSS, JavaScript |
 | Config | python-dotenv (`.env` file) |
 
@@ -85,6 +86,17 @@ Create a `.env` file in the root directory:
 GROQ_API_KEY=your-actual-groq-api-key-here
 ```
 
+### 5. Optional: Set up Local Ollama (for offline processing)
+
+1. **Install Ollama**: Download from [ollama.com](https://ollama.com/)
+2. **Download Mistral 7B model**:
+   ```bash
+   ollama pull mistral:7b
+   ```
+3. **Start Ollama service** and ensure it's running on `localhost:11434`
+
+> **Note**: Ollama is optional. You can use the app with just Groq API.
+
 ---
 
 ## ▶️ Running the App
@@ -108,12 +120,25 @@ http://localhost:8000/docs
 ## 🎯 How to Use
 
 1. Open `http://localhost:8000` in your browser
-2. Paste your text into the input box — or use the **Paste**, **Upload**, or **Clear** buttons
-3. Select a summary format from the dropdown: `Concise`, `Detailed`, `Bullet Points`, or `Key Points`
-4. Click **Generate Summary**
-5. View the summary, then **Copy** or **Download** it
+2. **Select AI Method**: Choose between "Groq API" (cloud) or "Local Ollama (Mistral 7B)" (offline)
+3. Paste your text into the input box — or use the **Paste**, **Upload**, or **Clear** buttons
+4. Select a summary format from the dropdown: `Concise`, `Detailed`, `Bullet Points`, or `Key Points`
+5. Click **Generate Summary**
+6. View the summary, then **Copy** or **Download** it
 
 > ⚠️ Keep input under **3000 words** to stay within the free Groq API token limits.
+
+## 🔄 Dual Backend Usage
+
+### Groq API (Cloud)
+- **Pros**: Fast response times, no local setup required
+- **Cons**: Requires internet connection and API key
+- **Use when**: You want quick setup and reliable performance
+
+### Local Ollama (Offline)
+- **Pros**: No internet required, privacy-focused, cost-free
+- **Cons**: Requires local setup and model download
+- **Use when**: You need offline processing or have privacy concerns
 
 ---
 
@@ -170,6 +195,7 @@ DEBUG=False
 | `500 Internal Server Error` on load | Wrong file path in `main.py` | Ensure `index.html` is in the same directory as `main.py` |
 | `GROQ_API_KEY not set` warning | `.env` file missing or wrong path | Create `.env` in the root directory next to `main.py` |
 | `413 / rate_limit_exceeded` error | Text too long for free tier | Reduce input to under 3000 words |
+| `Ollama is not running` error | Ollama service not started or model not downloaded | Start Ollama and run `ollama pull mistral:7b` |
 | Buttons not working | JS crash on load | Check browser console for errors |
 | Static files not loading (CSS/JS) | Wrong static directory in `main.py` | Ensure `StaticFiles(directory=".")` in `main.py` |
 | Hamburger menu not opening | Old cached `script.js` | Hard refresh with `Ctrl+Shift+R` |

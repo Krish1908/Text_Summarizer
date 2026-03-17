@@ -16,6 +16,7 @@ from datetime import datetime
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -56,7 +57,7 @@ class SummarizeRequest(BaseModel):
     text: str
     summary_type: str = "concise"
     language: str = "auto"
-    model: str = "llama-3.1-8b-instant"
+    method: str = "groq"  # "groq" or "ollama"
     temperature: float = 0.0
 
 class SummarizeResponse(BaseModel):
@@ -118,6 +119,25 @@ def call_groq_api(prompt: str, model: str, temperature: float, api_key: str) -> 
     except Exception as e:
         raise Exception(f"LangChain API call failed: {str(e)}")
 
+def call_ollama_api(prompt: str, temperature: float) -> str:
+    """Call the Ollama API using LangChain"""
+    try:
+        # Initialize LangChain Ollama client with hardcoded model
+        llm = ChatOllama(
+            model="phi3",  # Hardcoded model as requested
+            temperature=temperature,
+            max_tokens=1000
+        )
+        
+        # Create message and invoke model
+        message = HumanMessage(content=prompt)
+        response = llm.invoke([message])
+        
+        return response.content
+        
+    except Exception as e:
+        raise Exception(f"Ollama API call failed: {str(e)}")
+
 @app.get("/", response_class=HTMLResponse)
 async def home():
     """Serve the main HTML page"""
@@ -127,7 +147,7 @@ async def home():
 
 @app.post("/api/summarize", response_model=SummarizeResponse)
 async def summarize_text(request: SummarizeRequest):
-    """Summarize text using Groq API"""
+    """Summarize text using either Groq API or Ollama"""
     try:
         # Validate input
         text = validate_text(request.text)
@@ -135,11 +155,14 @@ async def summarize_text(request: SummarizeRequest):
         # Build prompt
         prompt = build_prompt(text, request.summary_type, request.language)
         
-        # Get API key
-        api_key = get_api_key()
-        
-        # Call Groq API
-        summary = call_groq_api(prompt, request.model, request.temperature, api_key)
+        # Route to appropriate API based on method
+        if request.method == "ollama":
+            # Call Ollama API
+            summary = call_ollama_api(prompt, request.temperature)
+        else:
+            # Default to Groq API
+            api_key = get_api_key()
+            summary = call_groq_api(prompt, "llama-3.1-8b-instant", request.temperature, api_key)
         
         # Calculate statistics
         original_words = len(text.split())
@@ -162,28 +185,30 @@ async def summarize_text(request: SummarizeRequest):
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
     except Exception as e:
-            print(f"FULL ERROR: {e}")
-            error_msg = str(e)
-            if 'rate_limit_exceeded' in error_msg or '413' in error_msg:
-                raise HTTPException(status_code=429, detail="Your text is too large. Please shorten it to under 4000 words and try again.")
-            raise HTTPException(status_code=500, detail=f"Unexpected error: {error_msg}")
-@app.get("/api/models")
-async def get_models():
-    """Get available models"""
-    groq_models = [
+        print(f"FULL ERROR: {e}")
+        error_msg = str(e)
+        if 'rate_limit_exceeded' in error_msg or '413' in error_msg:
+            raise HTTPException(status_code=429, detail="Your text is too large. Please shorten it to under 4000 words and try again.")
+        elif 'Ollama API call failed' in error_msg:
+            raise HTTPException(status_code=503, detail="Ollama is not running or not accessible. Please ensure Ollama is installed and running on localhost:11434.")
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {error_msg}")
+@app.get("/api/methods")
+async def get_methods():
+    """Get available methods"""
+    methods = [
         {
-            'value': 'llama-3.1-8b-instant',
-            'label': 'Llama 3.1 8B (Fast)',
-            'description': 'Fastest response time'
+            'value': 'groq',
+            'label': 'Groq API',
+            'description': 'Cloud-based API with fast response times'
         },
         {
-            'value': 'llama-3.3-70b-versatile',
-            'label': 'Llama 3.3 70B (Best Quality)',
-            'description': 'Best quality, slightly slower'
+            'value': 'ollama',
+            'label': 'Local Ollama',
+            'description': 'Local AI processing, no internet required'
         }
     ]
     
-    return {"success": True, "models": groq_models}
+    return {"success": True, "methods": methods}
 
 @app.get("/api/health")
 async def health_check():

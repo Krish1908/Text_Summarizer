@@ -23,6 +23,7 @@ class TextSummarizer {
             
             // Configuration
             summaryType: document.getElementById('summaryType'),
+            methodSelect: document.getElementById('methodSelect'),
             
             // Input
             inputText: document.getElementById('inputText'),
@@ -142,7 +143,8 @@ class TextSummarizer {
                 },
                 body: JSON.stringify({
                     text: text,
-                    summary_type: this.elements.summaryType.value
+                    summary_type: this.elements.summaryType.value,
+                    method: this.elements.methodSelect.value
                 })
             });
 

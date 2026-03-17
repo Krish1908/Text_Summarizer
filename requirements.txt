@@ -13,7 +13,7 @@ pydantic==2.11.5
 jinja2==3.1.5
 
 # LangChain Integration (same as v1 Streamlit version)
-langchain-ollama==1.0.0
+langchain-ollama==0.2.2
 langchain-core==1.0.0
 langchain-groq==1.0.0
 
