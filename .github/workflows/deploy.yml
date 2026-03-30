@@ -36,7 +36,7 @@ jobs:
 
           echo "🔄 Restarting services..."
           sudo systemctl daemon-reload
-          sudo systemctl restart textsummarizer
+          sudo systemctl restart ts-backend
           sudo systemctl restart nginx
           echo "✅ Done Restarting backend service..."
 
