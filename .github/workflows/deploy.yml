@@ -1,4 +1,4 @@
-name: Deploy Text Summarizer
+name: Deploy Text Summarizer (Dual Infra)
 
 on:
   push:
@@ -6,14 +6,51 @@ on:
       - main
 
 jobs:
-  deploy:
-    runs-on: self-hosted
+
+  deploy-aws:
+    name: Deploy TS to AWS
+    runs-on: [self-hosted, ts, aws]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy Text Summarizer
+      - name: Deploy Text Summarizer (AWS)
+        run: |
+          echo "🚀 Starting Tender frontend deployment..."
+
+          cd /var/www/Text_Summarizer
+
+          echo "📥 Pulling latest code..."
+          git fetch --all
+          git reset --hard origin/main
+          git pull origin main
+          echo "✅ Done Pulling latest code..."
+
+          echo "🐍 Activating virtual environment..."
+          source venv/bin/activate
+
+          echo "📦 Installing backend dependencies..."
+          pip install -r requirements.txt
+          echo "✅ Done Installing backend dependencies..."
+
+          echo "🔄 Restarting services..."
+          sudo systemctl daemon-reload
+          sudo systemctl restart textsummarizer
+          sudo systemctl restart nginx
+          echo "✅ Done Restarting backend service..."
+
+          echo "✅ Text Summarizer deployment complete!"
+
+  deploy-onprem:
+    name: Deploy TS to On-Prem
+    runs-on: [self-hosted, ts, on-prem]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Text Summarizer (On-Prem)
         run: |
           echo "🚀 Starting Tender frontend deployment..."
 
