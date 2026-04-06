@@ -23,9 +23,21 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t krish1908/text-summarizer:v${{ github.run_number }} .
+          echo "📥 Pull cache (if exists)"
+          docker pull krish1908/text-summarizer:cache || true
+
+          echo "🏗️ Build image with cache"
+          docker build \
+            --cache-from=krish1908/text-summarizer:cache \
+            -t krish1908/text-summarizer:v${{ github.run_number }} \
+            -t krish1908/text-summarizer:cache \
+            .
+
+          echo "📤 Push versioned image"
           docker push krish1908/text-summarizer:v${{ github.run_number }}
 
+          echo "📤 Push cache image"
+          docker push krish1908/text-summarizer:cache
   # # -------------------------
   # # DEPLOY TO AWS
   # # -------------------------
