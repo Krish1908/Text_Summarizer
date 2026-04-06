@@ -109,3 +109,5 @@ jobs:
           sudo systemctl reload nginx
           sudo systemctl daemon-reload
           echo "✅ On-Prem Deployment Done"
+
+          
