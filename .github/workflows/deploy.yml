@@ -47,12 +47,15 @@ jobs:
 
   #         echo "📥 Pull versioned image"
   #         docker pull krish1908/text-summarizer:v${{ github.run_number }}
+  #         echo "✅ Pulled versioned image"
 
   #         echo "🛑 Stop old container"
   #         docker stop text-summarizer-container || true
+  #         echo "🛑 Stopped old container"
 
   #         echo "🗑 Remove old container"
   #         docker rm text-summarizer-container || true
+  #         echo "🗑 Removed old container"
 
   #         echo "🚀 Run new container"
   #         docker run -d \
@@ -60,6 +63,7 @@ jobs:
   #           --name text-summarizer-container \
   #           --restart always \
   #           krish1908/text-summarizer:v${{ github.run_number }}
+  #         echo "🚀 Running new container"
 
   #         echo "🔄 Reload services"
   #         sudo systemctl reload nginx
@@ -82,12 +86,15 @@ jobs:
 
           echo "📥 Pull versioned image"
           docker pull krish1908/text-summarizer:v${{ github.run_number }}
+          echo "✅ Pulled versioned image"
 
           echo "🛑 Stop old container"
           docker stop text-summarizer-container || true
+          echo "🛑 Stopped old container"
 
           echo "🗑 Remove old container"
           docker rm text-summarizer-container || true
+          echo "🗑 Removed old container"
 
           echo "🚀 Run new container"
           docker run -d \
@@ -95,6 +102,7 @@ jobs:
             --name text-summarizer-container \
             --restart always \
             krish1908/text-summarizer:v${{ github.run_number }}
+          echo "🚀 Running new container"
 
           echo "🔄 Reload services"
           sudo systemctl reload nginx
