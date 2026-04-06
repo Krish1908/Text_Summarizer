@@ -23,9 +23,9 @@ jobs:
 
       - name: Build Docker Images (latest + version)
         run: |
-          docker build -t krish1908/text-summarizer:latest .
           docker build -t krish1908/text-summarizer:v${{ github.run_number }} .
-
+          docker push krish1908/text-summarizer:v${{ github.run_number }}
+      
       - name: Push Docker Images
         run: |
           docker push krish1908/text-summarizer:latest
