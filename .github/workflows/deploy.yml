@@ -1,4 +1,4 @@
-name: Deploy Text Summarizer (Dual Infra)
+name: Deploy Text Summarizer (Docker CI/CD)
 
 on:
   push:
@@ -7,72 +7,96 @@ on:
 
 jobs:
 
-  deploy-aws:
-    name: Deploy TS to AWS
-    runs-on: [self-hosted, ts, aws]
+  # -------------------------
+  # BUILD + PUSH IMAGE
+  # -------------------------
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy Text Summarizer (AWS)
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker Images (latest + version)
         run: |
-          echo "🚀 Starting Tender frontend deployment..."
+          docker build -t krish1908/text-summarizer:latest .
+          docker build -t krish1908/text-summarizer:v${{ github.run_number }} .
 
-          cd /var/www/Text_Summarizer
+      - name: Push Docker Images
+        run: |
+          docker push krish1908/text-summarizer:latest
+          docker push krish1908/text-summarizer:v${{ github.run_number }}
 
-          echo "📥 Pulling latest code..."
-          git fetch --all
-          git reset --hard origin/main
-          git pull origin main
-          echo "✅ Done Pulling latest code..."
 
-          echo "🐍 Activating virtual environment..."
-          source venv/bin/activate
+  # # -------------------------
+  # # DEPLOY TO AWS
+  # # -------------------------
+  # deploy-aws:
+  #   name: Deploy to AWS
+  #   runs-on: [self-hosted, ts, aws]
+  #   needs: build-and-push
 
-          echo "📦 Installing backend dependencies..."
-          pip install -r requirements.txt
-          echo "✅ Done Installing backend dependencies..."
+  #   steps:
+  #     - name: Deploy via Docker (AWS)
+  #       run: |
+  #         echo "🚀 Deploying to AWS..."
 
-          echo "🔄 Restarting services..."
-          sudo systemctl daemon-reload
-          sudo systemctl restart ts-backend
-          sudo systemctl restart nginx
-          echo "✅ Done Restarting backend service..."
+  #         echo "📥 Pull versioned image"
+  #         docker pull krish1908/text-summarizer:v${{ github.run_number }}
 
-          echo "✅ Text Summarizer deployment complete!"
+  #         echo "🛑 Stop old container"
+  #         docker stop text-summarizer-container || true
 
+  #         echo "🗑 Remove old container"
+  #         docker rm text-summarizer-container || true
+
+  #         echo "🚀 Run new container"
+  #         docker run -d \
+  #           -p 127.0.0.1:8021:8000 \
+  #           --name text-summarizer-container \
+  #           --restart always \
+  #           krish1908/text-summarizer:v${{ github.run_number }}
+
+  #         echo "🔄 Reload services"
+  #         sudo systemctl reload nginx
+  #         sudo systemctl daemon-reload
+  #         echo "✅ AWS Deployment Done"
+
+
+  # -------------------------
+  # DEPLOY TO ON-PREM
+  # -------------------------
   deploy-onprem:
-    name: Deploy TS to On-Prem
+    name: Deploy to On-Prem
     runs-on: [self-hosted, ts, on-prem]
+    needs: build-and-push
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy Text Summarizer (On-Prem)
+      - name: Deploy via Docker (On-Prem)
         run: |
-          echo "🚀 Starting Tender frontend deployment..."
+          echo "🚀 Deploying to On-Prem..."
 
-          cd /var/www/Text_Summarizer
+          echo "📥 Pull versioned image"
+          docker pull krish1908/text-summarizer:v${{ github.run_number }}
 
-          echo "📥 Pulling latest code..."
-          git fetch --all
-          git reset --hard origin/main
-          git pull origin main
-          echo "✅ Done Pulling latest code..."
+          echo "🛑 Stop old container"
+          docker stop text-summarizer-container || true
 
-          echo "🐍 Activating virtual environment..."
-          source venv/bin/activate
+          echo "🗑 Remove old container"
+          docker rm text-summarizer-container || true
 
-          echo "📦 Installing backend dependencies..."
-          pip install -r requirements.txt
-          echo "✅ Done Installing backend dependencies..."
+          echo "🚀 Run new container"
+          docker run -d \
+            -p 127.0.0.1:8021:8000 \
+            --name text-summarizer-container \
+            --restart always \
+            krish1908/text-summarizer:v${{ github.run_number }}
 
-          echo "🔄 Restarting services..."
+          echo "🔄 Reload services"
+          sudo systemctl reload nginx
           sudo systemctl daemon-reload
-          sudo systemctl restart textsummarizer
-          sudo systemctl restart nginx
-          echo "✅ Done Restarting backend service..."
-
-          echo "✅ Text Summarizer deployment complete!"
+          echo "✅ On-Prem Deployment Done"
