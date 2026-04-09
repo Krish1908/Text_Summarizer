@@ -63,7 +63,7 @@ jobs:
   #           -p 127.0.0.1:8021:8000 \
   #           --name text-summarizer-container \
   #           --restart always \
-  #           --env-file /opt/text-summarizer/.env \
+  #           --env-file /var/www/text-summarizer/.env \
   #           krish1908/text-summarizer:v${{ github.run_number }}
   #         echo "🚀 Running new container"
 
@@ -103,7 +103,7 @@ jobs:
             -p 127.0.0.1:8021:8000 \
             --name text-summarizer-container \
             --restart always \
-            --env-file /opt/text-summarizer/.env \
+            --env-file /var/www/text-summarizer/.env \
             krish1908/text-summarizer:v${{ github.run_number }}
           echo "🚀 Running new container"
 
