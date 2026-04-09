@@ -1,0 +1,13 @@
+
+
+.env
+.env.*
+.streamlit/secrets.toml
+
+venv/
+.env/
+__pycache__/
+
+
+.git
+.gitignore
