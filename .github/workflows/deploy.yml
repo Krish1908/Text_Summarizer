@@ -103,13 +103,22 @@ jobs:
             -p 127.0.0.1:8021:8000 \
             --name text-summarizer-container \
             --restart always \
-            --env-file /var/www/Text_Summarizer/.env \
+            --env-file /data/Text_Summarizer/.env \
+            --memory="512m" \
+            --cpus="1.0" \
+            --log-opt max-size=10m \
+            --log-opt max-file=3 \
             krish1908/text-summarizer:v${{ github.run_number }}
-          echo "🚀 Running new container"
 
-          echo "🔄 Reload services"
+          echo "⏳ Waiting for container..."
+          sleep 5
+
+          echo "🧪 Health check"
+          curl -f http://127.0.0.1:8021 || exit 1
+
+          echo "🔄 Reload nginx"
           sudo systemctl reload nginx
-          sudo systemctl daemon-reload
+
           echo "✅ On-Prem Deployment Done"
 
           
