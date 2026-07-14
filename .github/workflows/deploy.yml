@@ -121,4 +121,47 @@ jobs:
 
           echo "✅ On-Prem Deployment Done"
 
-          
+  # -------------------------
+  # DEPLOY TO KM GCP
+  # -------------------------
+  deploy-km-gcp:
+    name: Deploy to KM GCP
+    runs-on: [self-hosted, ts, gcp, km]
+    needs: build-and-push
+
+    steps:
+      - name: Deploy via Docker (KM GCP)
+        run: |
+          echo "🚀 Deploying to KM GCP..."
+
+          echo "📥 Pull versioned image"
+          docker pull krish1908/text-summarizer:v${{ github.run_number }}
+          echo "✅ Pulled versioned image"
+
+          echo "🛑 Stop old container"
+          docker stop text-summarizer-km || true
+          echo "🛑 Stopped old container"
+
+          echo "🗑 Remove old container"
+          docker rm text-summarizer-km || true
+          echo "🗑 Removed old container"
+
+          echo "🚀 Run new container"
+          docker run -d \
+            -p 127.0.0.1:8021:8000 \
+            --name text-summarizer-km \
+            --restart always \
+            --env-file /var/krish/.env \
+            --memory="512m" \
+            --cpus="1.0" \
+            --log-opt max-size=10m \
+            --log-opt max-file=3 \
+            krish1908/text-summarizer:v${{ github.run_number }}
+
+          echo "⏳ Waiting for container..."
+          sleep 5
+
+          echo "🧪 Health check"
+          curl -f http://127.0.0.1:8021 || exit 1
+
+          echo "✅ KM GCP Deployment Done"
