@@ -12,7 +12,7 @@ jobs:
   # -------------------------
   build-and-push:
     name: Build & Push Docker Image
-    runs-on: [self-hosted, ts, on-prem]
+    runs-on: [self-hosted, ts]
 
     steps:
       - name: Checkout code
