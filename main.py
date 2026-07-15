@@ -60,13 +60,40 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 # Application Limits
 MAX_WORDS = 3000
 
-def get_api_key():
-    """Get API key from environment variable"""
-    api_key = os.getenv('GROQ_API_KEY')
-    if not api_key:
-        raise ValueError("GROQ_API_KEY environment variable not set!")
-    return api_key
 
+class AppError(Exception):
+    """Base class for all application-specific exceptions."""
+    pass
+
+
+class ValidationError(AppError):
+    """Raised for invalid client input."""
+    pass
+
+
+class PayloadTooLargeError(AppError):
+    """Raised when the request exceeds application limits."""
+    pass
+
+
+class AuthenticationError(AppError):
+    """Raised when provider authentication fails."""
+    pass
+
+
+class RateLimitError(AppError):
+    """Raised when the provider rate limit is exceeded."""
+    pass
+
+
+class ProviderUnavailableError(AppError):
+    """Raised when the configured provider is unavailable."""
+    pass
+
+
+class ConfigurationError(AppError):
+    """Raised when application configuration is invalid."""
+    pass
 
 class SummarizeRequest(BaseModel):
     text: str
@@ -83,10 +110,20 @@ class SummarizeResponse(BaseModel):
     timestamp: str
 
 
+
+def get_api_key():
+    """Get API key from environment variable"""
+    api_key = os.getenv('GROQ_API_KEY')
+    if not api_key:
+        raise ConfigurationError("GROQ_API_KEY environment variable not set!")
+    return api_key
+
+
+
 def validate_text(text: str) -> str:
     """Validate input text"""
     if not text or not text.strip():
-        raise ValueError("Text cannot be empty")
+        raise ValidationError("Text cannot be empty")
     
     text = text.strip()
     word_count = len(text.split())
@@ -98,7 +135,7 @@ def validate_text(text: str) -> str:
             MAX_WORDS,
         )
 
-        raise ValueError(
+        raise PayloadTooLargeError(
             f"Text too long ({word_count} words). Please reduce it to under {MAX_WORDS} words."
         )
 
@@ -147,8 +184,15 @@ def call_groq_api(prompt: str, model: str, temperature: float, api_key: str) -> 
         return response.content
         
     except Exception as e:
-        raise Exception(f"LangChain API call failed: {str(e)}")
+        error = str(e).lower()
 
+        if "authentication" in error or "invalid api key" in error:
+            raise AuthenticationError("Invalid Groq API key.") from e
+
+        if "rate_limit" in error or "rate limit" in error:
+            raise RateLimitError("Groq API rate limit exceeded.") from e
+
+        raise
 
 def call_ollama_api(prompt: str, temperature: float) -> str:
     """Call the Ollama API using LangChain"""
@@ -167,8 +211,19 @@ def call_ollama_api(prompt: str, temperature: float) -> str:
         return response.content
         
     except Exception as e:
-        raise Exception(f"Ollama API call failed: {str(e)}")
+        error = str(e).lower()
 
+        if "connection refused" in error:
+            raise ProviderUnavailableError(
+                "Ollama is not running or not reachable."
+            ) from e
+
+        if "failed to connect" in error:
+            raise ProviderUnavailableError(
+                "Ollama is not running or not reachable."
+            ) from e
+
+        raise
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
@@ -222,21 +277,54 @@ async def summarize_text(request: SummarizeRequest):
             timestamp=datetime.now().isoformat()
         )
         
-    except ValueError as e:
+    except ValidationError as e:
         logger.warning("Validation failed: %s", e)
-        raise HTTPException(status_code=400, detail=str(e))
-    except requests.exceptions.RequestException as e:
-        logger.error("External API request failed: %s", e)
-        raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
-    except Exception as e:
-        logger.exception("Unhandled exception while processing summary request")
-        error_msg = str(e)
-        if 'rate_limit_exceeded' in error_msg or '413' in error_msg:
-            raise HTTPException(status_code=429, detail="Your text is too large. Please shorten it to under 4000 words and try again.")
-        elif 'Ollama API call failed' in error_msg:
-            raise HTTPException(status_code=503, detail="Ollama is not running or not accessible. Please ensure Ollama is installed and running on localhost:11434.")
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {error_msg}")
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
+
+    except PayloadTooLargeError as e:
+        logger.warning("Payload too large: %s", e)
+        raise HTTPException(
+            status_code=413,
+            detail=str(e),
+        )
     
+    except AuthenticationError as e:
+        logger.warning("Authentication failed: %s", e)
+        raise HTTPException(
+            status_code=401,
+            detail=str(e),
+        )
+
+    except RateLimitError as e:
+        logger.warning("Rate limit exceeded: %s", e)
+        raise HTTPException(
+            status_code=429,
+            detail=str(e),
+        )
+
+    except ProviderUnavailableError as e:
+        logger.error("Provider unavailable: %s", e)
+        raise HTTPException(
+            status_code=503,
+            detail=str(e),
+        )
+
+    except ConfigurationError as e:
+        logger.error("Configuration error: %s", e)
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
+    
+    except Exception:
+        logger.exception("Unhandled exception while processing summary request")
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred.",
+        )
 
 @app.get("/api/methods")
 async def get_methods():
