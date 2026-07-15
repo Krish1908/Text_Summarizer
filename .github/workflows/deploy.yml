@@ -158,6 +158,7 @@ jobs:
             -e OTEL_LOGS_EXPORTER=none \
             -e OTEL_EXPORTER_OTLP_ENDPOINT=172.17.0.1:4317 \
             -e OTEL_EXPORTER_OTLP_PROTOCOL=grpc \
+            -e OTEL_EXPORTER_OTLP_INSECURE=true \
             -e OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev \
             --memory="512m" \
             --cpus="1.0" \
