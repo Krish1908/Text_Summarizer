@@ -1,6 +1,10 @@
 // Text Summarizer JavaScript
 // Modern, clean implementation inspired by Tender_frontend design
 
+
+const MAX_WORDS = 3000;
+
+
 class TextSummarizer {
     constructor() {
         this.init();
@@ -125,8 +129,11 @@ class TextSummarizer {
         }
 
         const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
-        if (wordCount > 3000) {
-            this.showError(`Text too long (${wordCount} words). Please reduce to under 3000 words to stay within API limits.`);
+
+        if (wordCount > MAX_WORDS) {
+            this.showError(
+                `Text too long (${wordCount} words). Please reduce it to under ${MAX_WORDS} words.`
+            );
             return;
         }
 

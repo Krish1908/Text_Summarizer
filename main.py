@@ -57,6 +57,8 @@ logger.info("Text Summarizer API initialized")
 # Configuration
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
+# Application Limits
+MAX_WORDS = 3000
 
 def get_api_key():
     """Get API key from environment variable"""
@@ -86,11 +88,21 @@ def validate_text(text: str) -> str:
     if not text or not text.strip():
         raise ValueError("Text cannot be empty")
     
-    if len(text) > 50000:  # Limit text length
-        logger.warning("Input validation failed: text length (%d characters) exceeds the maximum allowed limit (50000).", len(text),)
-        raise ValueError("Text too long. Please limit to 50,000 characters or less")
-    
-    return text.strip()
+    text = text.strip()
+    word_count = len(text.split())
+
+    if word_count > MAX_WORDS: # Enforce maximum input word limit
+        logger.warning(
+            "Input validation failed: word count (%d) exceeds the maximum allowed limit (%d).",
+            word_count,
+            MAX_WORDS,
+        )
+
+        raise ValueError(
+            f"Text too long ({word_count} words). Please reduce it to under {MAX_WORDS} words."
+        )
+
+    return text
 
 
 def build_prompt(text: str, summary_type: str, language: str) -> str:
