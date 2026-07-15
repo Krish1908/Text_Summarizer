@@ -156,7 +156,22 @@ class TextSummarizer {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+
+                switch (response.status) {
+                    case 400:
+                    case 401:
+                    case 413:
+                    case 429:
+                    case 500:
+                    case 503:
+                        throw new Error(errorData.detail || "An error occurred.");
+
+                    default:
+                        throw new Error(
+                            errorData.detail || `Unexpected server error (${response.status}).`
+                        );
+                }
             }
 
             const data = await response.json();
@@ -169,14 +184,9 @@ class TextSummarizer {
             }
 
         } catch (error) {
-            console.error('Error:', error);
-            if (response && response.status === 429) {
-                const data = await response.json().catch(() => ({}));
-                this.showError(data.detail || 'Text too large. Please shorten your input and try again.');
-            } else {
-                this.showError('Error generating summary. Please check your connection and try again.');
-            }
-        } finally {
+            console.error("Error:", error);
+            this.showError(error.message);
+            } finally {
             this.showProcessing(false);
         }
     }
