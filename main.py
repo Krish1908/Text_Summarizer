@@ -19,9 +19,17 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 from dotenv import load_dotenv
 from pathlib import Path
+import logging
 
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(env_path, override=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
+
+logger = logging.getLogger("text-summarizer")
 
 app = FastAPI(title="Text Summarizer API", version="1.0.0")
 
@@ -43,8 +51,12 @@ class NoCacheMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(NoCacheMiddleware)
 
+logger.info("Text Summarizer API initialized")
+
+
 # Configuration
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+
 
 def get_api_key():
     """Get API key from environment variable"""
@@ -53,6 +65,7 @@ def get_api_key():
         raise ValueError("GROQ_API_KEY environment variable not set!")
     return api_key
 
+
 class SummarizeRequest(BaseModel):
     text: str
     summary_type: str = "concise"
@@ -60,11 +73,13 @@ class SummarizeRequest(BaseModel):
     method: str = "groq"  # "groq" or "ollama"
     temperature: float = 0.0
 
+
 class SummarizeResponse(BaseModel):
     success: bool
     summary: str
     stats: dict
     timestamp: str
+
 
 def validate_text(text: str) -> str:
     """Validate input text"""
@@ -72,9 +87,11 @@ def validate_text(text: str) -> str:
         raise ValueError("Text cannot be empty")
     
     if len(text) > 50000:  # Limit text length
+        logger.warning("Input validation failed: text length (%d characters) exceeds the maximum allowed limit (50000).", len(text),)
         raise ValueError("Text too long. Please limit to 50,000 characters or less")
     
     return text.strip()
+
 
 def build_prompt(text: str, summary_type: str, language: str) -> str:
     """Build the prompt for the LLM"""
@@ -99,6 +116,7 @@ def build_prompt(text: str, summary_type: str, language: str) -> str:
     
     return prompt
 
+
 def call_groq_api(prompt: str, model: str, temperature: float, api_key: str) -> str:
     """Call the Groq API using LangChain"""
     try:
@@ -119,6 +137,7 @@ def call_groq_api(prompt: str, model: str, temperature: float, api_key: str) -> 
     except Exception as e:
         raise Exception(f"LangChain API call failed: {str(e)}")
 
+
 def call_ollama_api(prompt: str, temperature: float) -> str:
     """Call the Ollama API using LangChain"""
     try:
@@ -138,6 +157,7 @@ def call_ollama_api(prompt: str, temperature: float) -> str:
     except Exception as e:
         raise Exception(f"Ollama API call failed: {str(e)}")
 
+
 @app.get("/", response_class=HTMLResponse)
 async def home():
     """Serve the main HTML page"""
@@ -145,9 +165,11 @@ async def home():
     with open(html_path, 'r', encoding='utf-8') as f:
         return HTMLResponse(content=f.read(), status_code=200)
 
+
 @app.post("/api/summarize", response_model=SummarizeResponse)
 async def summarize_text(request: SummarizeRequest):
     """Summarize text using either Groq API or Ollama"""
+    logger.info("Summary request received | provider=%s | summary_type=%s", request.method, request.summary_type,)
     try:
         # Validate input
         text = validate_text(request.text)
@@ -169,6 +191,14 @@ async def summarize_text(request: SummarizeRequest):
         summary_words = len(summary.split())
         reduction_ratio = ((original_words - summary_words) / original_words) * 100 if original_words > 0 else 0
         
+        logger.info(
+            "Summary generated successfully | provider=%s | original_words=%d | summary_words=%d | reduction=%.1f%%",
+            request.method,
+            original_words,
+            summary_words,
+            reduction_ratio,
+        )
+
         return SummarizeResponse(
             success=True,
             summary=summary,
@@ -181,17 +211,21 @@ async def summarize_text(request: SummarizeRequest):
         )
         
     except ValueError as e:
+        logger.warning("Validation failed: %s", e)
         raise HTTPException(status_code=400, detail=str(e))
     except requests.exceptions.RequestException as e:
+        logger.error("External API request failed: %s", e)
         raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
     except Exception as e:
-        print(f"FULL ERROR: {e}")
+        logger.exception("Unhandled exception while processing summary request")
         error_msg = str(e)
         if 'rate_limit_exceeded' in error_msg or '413' in error_msg:
             raise HTTPException(status_code=429, detail="Your text is too large. Please shorten it to under 4000 words and try again.")
         elif 'Ollama API call failed' in error_msg:
             raise HTTPException(status_code=503, detail="Ollama is not running or not accessible. Please ensure Ollama is installed and running on localhost:11434.")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {error_msg}")
+    
+
 @app.get("/api/methods")
 async def get_methods():
     """Get available methods"""
@@ -210,6 +244,7 @@ async def get_methods():
     
     return {"success": True, "methods": methods}
 
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
@@ -219,20 +254,31 @@ async def health_check():
         "version": "1.0.0"
     }
 
+
 if __name__ == "__main__":
     # Check for API key
     if not os.getenv('GROQ_API_KEY'):
-        print("Warning: GROQ_API_KEY environment variable not set!")
-        print("Please set it before running the server.")
-        print("Example: export GROQ_API_KEY=your-api-key-here")
+        logger.warning(
+            "GROQ_API_KEY environment variable is not set. "
+            "Please configure it before starting the application."
+        )
     
     # Run the server
     port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
     
-    print(f"Starting Text Summarizer API server on port {port}")
-    print(f"Debug mode: {debug}")
-    print(f"API endpoint: http://localhost:{port}/api/summarize")
-    print(f"Documentation: http://localhost:{port}/docs")
+    logger.info("Starting Text Summarizer API server on port %d", port)
+
+    logger.info("Debug mode: %s", debug)
+
+    logger.info(
+        "API endpoint available at http://localhost:%d/api/summarize",
+        port
+    )
+
+    logger.info(
+        "Swagger UI available at http://localhost:%d/docs",
+        port
+    )
     
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=debug)
