@@ -152,12 +152,12 @@ jobs:
             --name text-summarizer-km \
             --restart always \
             --env-file /var/krish/.env \
-            -e OTEL_SERVICE_NAME=text-summarizer-v${{ github.run_number }}\
+            -e OTEL_SERVICE_NAME=text-summarizer-v${{ github.run_number }} \
             -e OTEL_TRACES_EXPORTER=otlp \
             -e OTEL_METRICS_EXPORTER=none \
             -e OTEL_LOGS_EXPORTER=none \
             -e OTEL_EXPORTER_OTLP_ENDPOINT=http://172.17.0.1:4318  \
-            -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \ \
+            -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
             -e OTEL_EXPORTER_OTLP_INSECURE=true \
             -e OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev \
             --memory="512m" \
